@@ -1,0 +1,77 @@
+# day06_02_colab_webcom_javascript_python_py
+#day04_07_processing_java_video_library_Capture_start_read丟給chatgpt
+from IPython.display import display, Javascript
+from google.colab.output import eval_js
+from base64 import b64decode
+import cv2
+import numpy as np
+
+def take_photo():
+
+    js = Javascript('''
+    async function takePhoto() {
+
+      const div = document.createElement('div');
+
+      const capture = document.createElement('button');
+      capture.textContent = '拍照';
+
+      div.appendChild(capture);
+
+      const video = document.createElement('video');
+      video.style.display = 'block';
+
+      const stream =
+          await navigator.mediaDevices.getUserMedia({video: true});
+
+      document.body.appendChild(div);
+      div.appendChild(video);
+
+      video.srcObject = stream;
+      await video.play();
+
+      google.colab.output.setIframeHeight(document.body.scrollHeight, true);
+
+      await new Promise((resolve) => capture.onclick = resolve);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      canvas.getContext('2d').drawImage(video,0,0);
+
+      stream.getTracks()[0].stop();
+      div.remove();
+
+      return canvas.toDataURL('image/jpeg');
+    }
+    ''')
+
+    display(js)
+
+    data = eval_js('takePhoto()')
+
+    binary = b64decode(data.split(',')[1])
+
+    jpg = np.frombuffer(binary,dtype=np.uint8)
+
+    img = cv2.imdecode(jpg,cv2.IMREAD_COLOR)
+
+    return img
+
+img = take_photo()
+
+cv2.imwrite("photo.jpg", img)
+
+from google.colab.patches import cv2_imshow
+
+cv2_imshow(img)
+
+while True:
+
+    ret, frame = cap.read()
+
+    if not ret:
+        break
+
+    cv2_imshow(frame)
