@@ -1,0 +1,6 @@
+#day07_02_python_IDLE_for_for_star
+N = int(input('請輸入N: '))
+for i in range(N): #左手i
+    for j in range(i+1): #右手j
+        print('*',end=' ')
+    print('第',i,'樓')
